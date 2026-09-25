@@ -1,0 +1,24 @@
+# ============================================================
+# CRUD Usuarios — Configuración Apache
+# ============================================================
+
+# 1. Deshabilitar el listado de directorios
+#    Sin esto, navegar a cualquier carpeta muestra su contenido.
+Options -Indexes
+
+# 2. Activar el motor de reescritura de URL (mod_rewrite)
+RewriteEngine On
+
+# 3. Las peticiones que ya van a public/ pasan directamente.
+#    (los recursos estáticos y el index.php están ahí)
+RewriteRule ^public/ - [L]
+
+# 4. Permitir archivos estáticos (CSS, JS, imágenes, fuentes…)
+#    aunque estén fuera de public/, el navegador los necesita.
+RewriteRule \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|mp4|pdf|map)$ - [L,NC]
+
+# 5. Todo lo demás (PHP files, directorios, txt, etc.) se
+#    reescribe INTERNAMENTE hacia public/index.php.
+#    El guard de seguridad dentro de index.php decide si
+#    redirigir al login o al home dependiendo de la sesión.
+RewriteRule ^ public/index.php [L]
