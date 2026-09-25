@@ -1,0 +1,81 @@
+# PHP / Composer
+
+/vendor/
+composer.phar
+composer.lock
+
+# Logs de PHP
+*.log
+php_errors.log
+
+# Cache de OPcache / APCu dumps
+*.cache
+
+# Configuración local sensible
+.env
+.env.local
+.env.*.local
+# La plantilla SÍ se sube al repositorio
+!.env.example
+
+
+# Base de datos — solo dumps de datos (los scripts de esquema SÍ van al repo)
+*.dump
+*-dump.sql
+*_dump.sql
+backup*.sql
+
+
+# Sistema operativo
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+
+
+# Editores e IDEs
+
+
+# VS Code
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.code-workspace
+
+*.swp
+*.swo
+*.bak
+*.orig
+*.tmp
+.idea/
+*.iml
+nbproject/
+.netbeans/
+
+
+# Node (si en algún momento se añaden herramientas front-end)
+
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Documentación tecnica, diagramas, manuales, pasos para montar el entorno de desarrollo, etc.
+
+
+docs/
+.vscode/settings.json
+*.ps1
