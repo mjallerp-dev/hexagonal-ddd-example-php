@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../Exceptions/InvalidArticleIdException.php';
+
 class ArticleId
 {
     private $value;

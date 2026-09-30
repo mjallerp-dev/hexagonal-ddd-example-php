@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../Exceptions/InvalidArticleSalePriceException.php';
+
 class ArticleSalePrice
 {
     private $value;

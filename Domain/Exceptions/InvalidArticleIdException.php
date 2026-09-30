@@ -9,6 +9,6 @@ class InvalidArticleIdException extends InvalidArgumentException
 
     public static function becauseLengthIsTooShort($minLength)
     {
-        return new self('The article model must contain at least ' . $minLength . ' characters.');
+        return new self('The article id must contain at least ' . $minLength . ' characters.');
     }
 }

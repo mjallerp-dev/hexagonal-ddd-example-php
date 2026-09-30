@@ -1,22 +1,24 @@
 <?php
 
+require_once __DIR__ . '/../Exceptions/InvalidArticleProviderException.php';
+
 class ArticleProvider
 {
     private $value;
 
-    public function __construct(string $value)
+    public function __construct($value)
     {
         $normalizedValue = trim((string) $value);
 
-        if ($normalizedValue === '')
-        {
+        if ($normalizedValue === '') {
             throw InvalidArticleProviderException::becauseValueIsEmpty();
         }
 
-        if (mb_strlen($normalizedValue) < 3)
-        {
+        if (mb_strlen($normalizedValue) < 3) {
             throw InvalidArticleProviderException::becauseLengthIsTooShort(3);
         }
+
+        $this->value = $normalizedValue;
     }
 
     public function value()
