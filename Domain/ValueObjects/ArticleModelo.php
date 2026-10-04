@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../Exceptions/InvalidArticleModelException.php';
+require_once __DIR__ . '/../Exceptions/InvalidArticleModeloException.php';
 
-class ArticleModel
+class ArticleModelo
 {
     private $value;
 
@@ -11,11 +11,11 @@ class ArticleModel
         $normalizedValue = trim((string) $value);
 
         if ($normalizedValue === '') {
-            throw InvalidArticleModelException::becauseValueIsEmpty();
+            throw InvalidArticleModeloException::becauseValueIsEmpty();
         }
 
         if (mb_strlen($normalizedValue) < 3) {
-            throw InvalidArticleModelException::becauseLengthIsTooShort(3);
+            throw InvalidArticleModeloException::becauseLengthIsTooShort(3);
         }
 
         $this->value = $normalizedValue;
@@ -26,7 +26,7 @@ class ArticleModel
         return $this->value;
     }
 
-    public function equals(ArticleModel $other)
+    public function equals(ArticleModelo $other)
     {
         return $this->value === $other->value();
     }

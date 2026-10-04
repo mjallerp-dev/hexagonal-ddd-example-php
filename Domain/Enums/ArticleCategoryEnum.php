@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../Exceptions/InvalidArticleCategoryException.php';
 
-enum ArticleCategoryEnum
+class ArticleCategoryEnum
 {
     const ELECTRONICA = 'electronica';
     const ROPA = 'ropa';

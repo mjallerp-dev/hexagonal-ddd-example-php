@@ -1,6 +1,6 @@
 <?php
 
-class InvalidArticleModelException extends InvalidArgumentException
+class InvalidArticleModeloException extends InvalidArgumentException
 {
     public static function becauseValueIsEmpty()
     {
