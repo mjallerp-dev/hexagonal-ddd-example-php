@@ -12,7 +12,7 @@ declare(strict_types=1);
         '/'
     );
     // dirname de /crud-usuarios/public/index.php  →  /crud-usuarios/public
-    $publicBase = rtrim(dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/');
+    $publicBase = rtrim(str_replace('\\', '/', dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'))), '/');
 
     // Si la URL pedida no comienza con /…/public/, fue un acceso directo indebido.
     if ($requestPath !== $publicBase && !str_starts_with($requestPath, $publicBase . '/')) {

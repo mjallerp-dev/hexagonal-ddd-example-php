@@ -14,7 +14,7 @@ require_once __DIR__ . '/../../../../../Domain/Models/UserModel.php';
 require_once __DIR__ . '/../../../../../Domain/ValueObjects/UserId.php';
 require_once __DIR__ . '/../../../../../Domain/ValueObjects/UserEmail.php';
 
-final class UserRepositoryMySQL implements
+final class UserRepositorySQLServer implements
     SaveUserPort,
     UpdateUserPort,
     GetUserByIdPort,
@@ -52,8 +52,8 @@ final class UserRepositoryMySQL implements
                 :password,
                 :role,
                 :status,
-                NOW(),
-                NOW()
+                GETDATE(),
+                GETDATE()
             )
         ';
 
@@ -87,7 +87,7 @@ final class UserRepositoryMySQL implements
                    password = :password,
                    role = :role,
                    status = :status,
-                   updated_at = NOW()
+                   updated_at = GETDATE()
              WHERE id = :id
         ';
 
@@ -113,7 +113,7 @@ final class UserRepositoryMySQL implements
     public function getById(UserId $userId): ?UserModel
     {
         $sql = '
-            SELECT
+            SELECT TOP 1
                 id,
                 name,
                 email,
@@ -124,7 +124,6 @@ final class UserRepositoryMySQL implements
                 updated_at
             FROM users
             WHERE id = :id
-            LIMIT 1
         ';
 
         $statement = $this->pdo->prepare($sql);
@@ -144,7 +143,7 @@ final class UserRepositoryMySQL implements
     public function getByEmail(UserEmail $email): ?UserModel
     {
         $sql = '
-            SELECT
+            SELECT TOP 1
                 id,
                 name,
                 email,
@@ -155,7 +154,6 @@ final class UserRepositoryMySQL implements
                 updated_at
             FROM users
             WHERE email = :email
-            LIMIT 1
         ';
 
         $statement = $this->pdo->prepare($sql);

@@ -19,11 +19,11 @@ final class DependencyInjection
 
         return new Connection(
             host: EnvLoader::get('DB_HOST', '127.0.0.1'),
-            port: EnvLoader::getInt('DB_PORT', 3306),
+            port: EnvLoader::getInt('DB_PORT', 1433),
             database: EnvLoader::get('DB_DATABASE', 'crud_usuarios'),
-            username: EnvLoader::get('DB_USERNAME', 'root'),
+            username: EnvLoader::get('DB_USERNAME', ''),
             password: EnvLoader::get('DB_PASSWORD', ''),
-            charset: EnvLoader::get('DB_CHARSET', 'utf8mb4')
+            trustServerCertificate: EnvLoader::getBool('DB_TRUST_SERVER_CERT', true)
         );
     }
 
@@ -39,11 +39,11 @@ final class DependencyInjection
         return new UserPersistenceMapper();
     }
 
-    public static function getUserRepository(): UserRepositoryMySQL
+    public static function getUserRepository(): UserRepositorySQLServer
     {
-        ClassLoader::loadClass('UserRepositoryMySQL');
+        ClassLoader::loadClass('UserRepositorySQLServer');
 
-        return new UserRepositoryMySQL(
+        return new UserRepositorySQLServer(
             self::getPdo(),
             self::getUserPersistenceMapper()
         );

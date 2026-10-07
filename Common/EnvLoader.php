@@ -74,4 +74,18 @@ final class EnvLoader
 
         return $value !== '' ? (int) $value : $default;
     }
+
+    /**
+     * Obtiene el valor de una variable de entorno como booleano.
+     */
+    public static function getBool(string $key, bool $default = false): bool
+    {
+        $value = self::get($key);
+
+        if ($value === '') {
+            return $default;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
 }

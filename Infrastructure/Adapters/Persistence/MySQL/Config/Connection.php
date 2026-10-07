@@ -9,7 +9,7 @@ final class Connection
     private string $database;
     private string $username;
     private string $password;
-    private string $charset;
+    private bool $trustServerCertificate;
 
     public function __construct(
         string $host,
@@ -17,24 +17,24 @@ final class Connection
         string $database,
         string $username,
         string $password,
-        string $charset = 'utf8mb4'
+        bool $trustServerCertificate = true
     ) {
         $this->host = $host;
         $this->port = $port;
         $this->database = $database;
         $this->username = $username;
         $this->password = $password;
-        $this->charset = $charset;
+        $this->trustServerCertificate = $trustServerCertificate;
     }
 
     public function createPdo(): PDO
     {
         $dsn = sprintf(
-            'mysql:host=%s;port=%d;dbname=%s;charset=%s',
+            'sqlsrv:Server=%s,%d;Database=%s;TrustServerCertificate=%d',
             $this->host,
             $this->port,
             $this->database,
-            $this->charset
+            $this->trustServerCertificate ? 1 : 0
         );
 
         $pdo = new PDO(
