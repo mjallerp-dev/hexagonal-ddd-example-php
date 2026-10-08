@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-final class CreateArticleCommand
+final class UpdateArticleCommand
 {
     private string $id;
     private string $description;
