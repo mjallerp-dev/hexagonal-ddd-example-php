@@ -3,8 +3,22 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../../Domain/Models/ArticleModel.php';
-require_once __DIR__ . '/../../../Application/Services/Dto/Commasnds/CreateArticleCommand.php';
-require_once __DIR__ . '/../../../Application/Services/Dto/Commasnds/UpdateArticleCommand.php';
+require_once __DIR__ . '/../Dto/Commands/CreateArticleCommand.php';
+require_once __DIR__ . '/../Dto/Commands/UpdateArticleCommand.php';
+require_once __DIR__ . '/../Dto/Commands/DeleteArticleCommand.php';
+require_once __DIR__ . '/../Dto/Queries/GetArticleByIdQuery.php';
+
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticleId.php';
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticleDescription.php';
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticleProvider.php';
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticleBrand.php';
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticleModelo.php';
+require_once __DIR__ . '/../../../Domain/Enums/ArticleCategoryEnum.php';
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticleStore.php';
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticleQuantity.php';
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticlePurchasePrice.php';
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticleSalePrice.php';
+require_once __DIR__ . '/../../../Domain/ValueObjects/ArticleIva.php';
 
 final class ArticleApplicationMapper
 {
@@ -53,7 +67,7 @@ final class ArticleApplicationMapper
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, string|int|float>
      */
     public static function fromModelToArray(ArticleModel $article): array
     {
@@ -66,15 +80,15 @@ final class ArticleApplicationMapper
             'category' => $article->category(),
             'store' => $article->store()->value(),
             'quantity' => $article->quantity()->value(),
-            'purchase_price' => $article->purchasePrice()->value(),
-            'sale_price' => $article->salePrice()->value(),
+            'purchasePrice' => $article->purchasePrice()->value(),
+            'salePrice' => $article->salePrice()->value(),
             'iva' => $article->iva()->value()
         );
     }
 
     /**
      * @param ArticleModel[] $articles
-     * @return array<int, array<string, string>>
+     * @return array<int, array<string, string|int|float>>
      */
     public static function fromModelsToArray(array $articles): array
     {
