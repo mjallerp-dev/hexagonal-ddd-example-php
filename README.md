@@ -5,7 +5,7 @@ Aplicación web PHP para la gestión de usuarios: registro, listado, visualizaci
 ## Tecnologías
 
 - PHP 8.3
-- MySQL
+- PostgreSQL
 - Apache mod_rewrite
 
 ---

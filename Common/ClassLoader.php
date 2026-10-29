@@ -62,11 +62,11 @@ final class ClassLoader
         'LoginService' => 'Application/Services/LoginService.php',
         'UserApplicationMapper' => 'Application/Services/Mappers/UserApplicationMapper.php',
 
-        'Connection' => 'Infrastructure/Adapters/Persistence/MySQL/Config/Connection.php',
-        'UserPersistenceDto' => 'Infrastructure/Adapters/Persistence/MySQL/Dto/UserPersistenceDto.php',
-        'UserEntity' => 'Infrastructure/Adapters/Persistence/MySQL/Entity/UserEntity.php',
-        'UserPersistenceMapper' => 'Infrastructure/Adapters/Persistence/MySQL/Mapper/UserPersistenceMapper.php',
-        'UserRepositorySQLServer' => 'Infrastructure/Adapters/Persistence/MySQL/Repository/UserRepositorySQLServer.php',
+        'Connection' => 'Infrastructure/Adapters/Persistence/PostgreSQL/Config/Connection.php',
+        'UserPersistenceDto' => 'Infrastructure/Adapters/Persistence/PostgreSQL/Dto/UserPersistenceDto.php',
+        'UserEntity' => 'Infrastructure/Adapters/Persistence/PostgreSQL/Entity/UserEntity.php',
+        'UserPersistenceMapper' => 'Infrastructure/Adapters/Persistence/PostgreSQL/Mapper/UserPersistenceMapper.php',
+        'UserRepositoryPostgreSQL' => 'Infrastructure/Adapters/Persistence/PostgreSQL/Repository/UserRepositoryPostgreSQL.php',
 
         'CreateUserWebRequest' => 'Infrastructure/Entrypoints/Web/Controllers/Dto/CreateUserRequest.php',
         'UpdateUserWebRequest' => 'Infrastructure/Entrypoints/Web/Controllers/Dto/UpdateUserRequest.php',
