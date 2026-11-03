@@ -155,4 +155,72 @@ final class DependencyInjection
             self::getUserRepository()
         );
     }
+
+    public static function getArticlePersistenceMapper(): ArticlePersistenceMapper
+    {
+        ClassLoader::loadClass('ArticlePersistenceMapper');
+
+        return new ArticlePersistenceMapper();
+    }
+
+    public static function getArticleRepository(): ArticleRepositoryPostgreSQL
+    {
+        ClassLoader::loadClass('ArticleRepositoryPostgreSQL');
+
+        return new ArticleRepositoryPostgreSQL(
+            self::getPdo(),
+            self::getArticlePersistenceMapper()
+        );
+    }
+
+    public static function getCreateArticleUseCase(): CreateArticleUseCase
+    {
+        ClassLoader::loadClass('CreateArticleService');
+        $repository = self::getArticleRepository();
+
+        return new CreateArticleService(
+            $repository,
+            $repository
+        );
+    }
+
+    public static function getUpdateArticleUseCase(): UpdateArticleUseCase
+    {
+        ClassLoader::loadClass('UpdateArticleService');
+        $repository = self::getArticleRepository();
+
+        return new UpdateArticleService(
+            $repository,
+            $repository
+        );
+    }
+
+    public static function getGetArticleByIdUseCase(): GetArticleByIdUseCase
+    {
+        ClassLoader::loadClass('GetArticleByIdService');
+
+        return new GetArticleByIdService(
+            self::getArticleRepository()
+        );
+    }
+
+    public static function getGetAllArticlesUseCase(): GetAllArticlesUseCase
+    {
+        ClassLoader::loadClass('GetAllArticlesService');
+
+        return new GetAllArticlesService(
+            self::getArticleRepository()
+        );
+    }
+
+    public static function getDeleteArticleUseCase(): DeleteArticleUseCase
+    {
+        ClassLoader::loadClass('DeleteArticleService');
+        $repository = self::getArticleRepository();
+
+        return new DeleteArticleService(
+            $repository,
+            $repository
+        );
+    }
 }
