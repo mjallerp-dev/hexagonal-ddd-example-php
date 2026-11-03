@@ -80,8 +80,8 @@ final class ArticleApplicationMapper
             'category' => $article->category(),
             'store' => $article->store()->value(),
             'quantity' => $article->quantity()->value(),
-            'purchasePrice' => $article->purchasePrice()->value(),
-            'salePrice' => $article->salePrice()->value(),
+            'purchase_price' => $article->purchasePrice()->value(),
+            'sale_price' => $article->salePrice()->value(),
             'iva' => $article->iva()->value()
         );
     }
