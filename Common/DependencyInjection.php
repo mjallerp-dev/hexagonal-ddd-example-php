@@ -173,6 +173,27 @@ final class DependencyInjection
         );
     }
 
+    public static function getArticleWebMapper(): ArticleWebMapper
+    {
+        ClassLoader::loadClass('ArticleWebMapper');
+
+        return new ArticleWebMapper();
+    }
+
+    public static function getArticleController(): ArticleController
+    {
+        ClassLoader::loadClass('ArticleController');
+
+        return new ArticleController(
+            self::getCreateArticleUseCase(),
+            self::getUpdateArticleUseCase(),
+            self::getGetArticleByIdUseCase(),
+            self::getGetAllArticlesUseCase(),
+            self::getDeleteArticleUseCase(),
+            self::getArticleWebMapper()
+        );
+    }
+
     public static function getCreateArticleUseCase(): CreateArticleUseCase
     {
         ClassLoader::loadClass('CreateArticleService');

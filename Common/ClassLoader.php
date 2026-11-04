@@ -135,6 +135,12 @@ final class ClassLoader
         'ArticlePersistenceMapper' => 'Infrastructure/Adapters/Persistence/PostgreSQL/Mapper/ArticlePersistenceMapper.php',
         'ArticleRepositoryPostgreSQL' => 'Infrastructure/Adapters/Persistence/PostgreSQL/Repository/ArticleRepositoryPostgreSQL.php',
 
+        'CreateArticleWebRequest' => 'Infrastructure/Entrypoints/Web/Controllers/Dto/CreateArticleRequest.php',
+        'UpdateArticleWebRequest' => 'Infrastructure/Entrypoints/Web/Controllers/Dto/UpdateArticleRequest.php',
+        'ArticleResponse' => 'Infrastructure/Entrypoints/Web/Controllers/Dto/ArticleResponse.php',
+        'ArticleWebMapper' => 'Infrastructure/Entrypoints/Web/Controllers/Mapper/ArticleWebMapper.php',
+        'ArticleController' => 'Infrastructure/Entrypoints/Web/Controllers/ArticleController.php',
+
         'DependencyInjection' => 'Common/DependencyInjection.php',
     );
 

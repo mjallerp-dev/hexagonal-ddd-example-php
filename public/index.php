@@ -182,6 +182,105 @@ try {
             View::redirect('users.index');
             break;
 
+        case 'articles.index':
+            $controller = DependencyInjection::getArticleController();
+            $articles = $controller->index();
+            View::render('articles/list', buildListArticlesViewData($articles));
+            break;
+
+        case 'articles.show':
+            $controller = DependencyInjection::getArticleController();
+            $id = isset($_GET['id']) ? trim((string) $_GET['id']) : '';
+            $article = $controller->show($id);
+            View::render('articles/show', array(
+                'pageTitle' => 'Detalle de artículo',
+                'article' => $article,
+                'message' => Flash::message(),
+            ));
+            break;
+
+        case 'articles.create':
+            View::render('articles/create', buildCreateArticleViewData());
+            break;
+
+        case 'articles.store':
+            $form = getArticleFormData();
+            $errors = validateArticleForm($form);
+
+            if (!empty($errors)) {
+                Flash::setOld($form);
+                Flash::setErrors($errors);
+                Flash::setMessage('Corrige los errores del formulario.');
+                View::redirect('articles.create');
+            }
+
+            $request = new CreateArticleWebRequest(
+                generateUuid4(),
+                $form['description'],
+                $form['provider'],
+                $form['brand'],
+                $form['model'],
+                $form['category'],
+                $form['store'],
+                (int) $form['quantity'],
+                (float) $form['purchase_price'],
+                (float) $form['sale_price'],
+                (float) $form['iva']
+            );
+
+            DependencyInjection::getArticleController()->store($request);
+
+            Flash::setSuccess('Artículo registrado correctamente.');
+            View::redirect('articles.index');
+            break;
+
+        case 'articles.edit':
+            $controller = DependencyInjection::getArticleController();
+            $id = isset($_GET['id']) ? trim((string) $_GET['id']) : '';
+            $article = $controller->show($id);
+            View::render('articles/edit', buildEditArticleViewData($article));
+            break;
+
+        case 'articles.update':
+            $form = getArticleFormData();
+            $errors = validateArticleForm($form);
+
+            if (!empty($errors)) {
+                Flash::setOld($form);
+                Flash::setErrors($errors);
+                Flash::setMessage('Corrige los errores del formulario.');
+                header('Location: ?route=articles.edit&id=' . urlencode($form['id']));
+                exit;
+            }
+
+            $request = new UpdateArticleWebRequest(
+                $form['id'],
+                $form['description'],
+                $form['provider'],
+                $form['brand'],
+                $form['model'],
+                $form['category'],
+                $form['store'],
+                (int) $form['quantity'],
+                (float) $form['purchase_price'],
+                (float) $form['sale_price'],
+                (float) $form['iva']
+            );
+
+            DependencyInjection::getArticleController()->update($request);
+
+            Flash::setSuccess('Artículo actualizado correctamente.');
+            View::redirect('articles.index');
+            break;
+
+        case 'articles.delete':
+            $controller = DependencyInjection::getArticleController();
+            $id = isset($_POST['id']) ? trim((string) $_POST['id']) : '';
+            $controller->delete($id);
+            Flash::setSuccess('Artículo eliminado correctamente.');
+            View::redirect('articles.index');
+            break;
+
         case 'login':
             if (isLoggedIn()) {
                 View::redirect('home');
@@ -306,6 +405,23 @@ try {
             View::redirect('auth.forgot');
             break;
 
+        case 'articles.store':
+            Flash::setOld(getArticleFormData());
+            View::redirect('articles.create');
+            break;
+
+        case 'articles.update':
+            $updateId = trim((string) ($_POST['id'] ?? ''));
+            Flash::setOld(getArticleFormData());
+            header('Location: ?route=articles.edit&id=' . urlencode($updateId));
+            exit;
+
+        case 'articles.show':
+        case 'articles.edit':
+        case 'articles.delete':
+            View::redirect('articles.index');
+            break;
+
         case 'users.show':
         case 'users.edit':
             View::redirect('users.index');
@@ -400,6 +516,120 @@ function buildEditUserViewData(UserResponse $user): array
         'errors' => Flash::errors(),
         'old' => Flash::old(),
     );
+}
+
+
+/**
+ * @param ArticleResponse[] $articles
+ * @return array<string, mixed>
+ */
+function buildListArticlesViewData(array $articles): array
+{
+    return array(
+        'pageTitle' => 'Lista de artículos',
+        'articles' => $articles,
+        'message' => Flash::message(),
+        'success' => Flash::success(),
+    );
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function buildCreateArticleViewData(): array
+{
+    return array(
+        'pageTitle' => 'Registrar artículo',
+        'categoryOptions' => ArticleCategoryEnum::values(),
+        'message' => Flash::message(),
+        'errors' => Flash::errors(),
+        'old' => Flash::old(),
+    );
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function buildEditArticleViewData(ArticleResponse $article): array
+{
+    return array(
+        'pageTitle' => 'Editar artículo',
+        'article' => $article,
+        'categoryOptions' => ArticleCategoryEnum::values(),
+        'message' => Flash::message(),
+        'errors' => Flash::errors(),
+        'old' => Flash::old(),
+    );
+}
+
+/**
+ * @return array<string, string>
+ */
+function getArticleFormData(): array
+{
+    $form = array();
+    $fields = array(
+        'id', 'description', 'provider', 'brand', 'model', 'category',
+        'store', 'quantity', 'purchase_price', 'sale_price', 'iva',
+    );
+
+    foreach ($fields as $field) {
+        $form[$field] = isset($_POST[$field]) ? trim((string) $_POST[$field]) : '';
+    }
+
+    return $form;
+}
+
+/**
+ * Los limites coinciden con database/articles.sql.
+ *
+ * @param array<string, string> $form
+ * @return array<string, string>
+ */
+function validateArticleForm(array $form): array
+{
+    $errors = array();
+
+    $textFields = array(
+        'description' => array('descripción', 255),
+        'provider' => array('proveedor', 100),
+        'brand' => array('marca', 100),
+        'model' => array('modelo', 100),
+        'store' => array('tienda', 100),
+    );
+
+    foreach ($textFields as $field => [$label, $maxLength]) {
+        if ($form[$field] === '') {
+            $errors[$field] = 'El campo ' . $label . ' es obligatorio.';
+        } elseif (mb_strlen($form[$field]) > $maxLength) {
+            $errors[$field] = 'El campo ' . $label . ' no puede superar ' . $maxLength . ' caracteres.';
+        }
+    }
+
+    if (!ArticleCategoryEnum::isValid($form['category'])) {
+        $errors['category'] = 'Selecciona una categoría válida.';
+    }
+
+    if (!preg_match('/^\d{1,10}$/D', $form['quantity']) || (int) $form['quantity'] > 2147483647) {
+        $errors['quantity'] = 'La cantidad debe ser un número entero entre 0 y 2147483647.';
+    }
+
+    $priceFields = array(
+        'purchase_price' => 'El precio de compra',
+        'sale_price' => 'El precio de venta',
+    );
+
+    foreach ($priceFields as $field => $label) {
+        if (!preg_match('/^\d{1,10}(\.\d{1,2})?$/D', $form[$field]) || (float) $form[$field] <= 0) {
+            $errors[$field] = $label . ' debe ser mayor que 0, con punto decimal y máximo 2 decimales.';
+        }
+    }
+
+    if (!preg_match('/^\d{1,3}(\.\d{1,2})?$/D', $form['iva']) || (float) $form['iva'] > 100) {
+        $errors['iva'] = 'El IVA debe estar entre 0 y 100, con punto decimal y máximo 2 decimales.';
+    }
+
+    return $errors;
 }
 
 
