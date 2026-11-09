@@ -18,6 +18,10 @@ class ArticleIva
             throw InvalidArticleIvaException::becauseMustBeGreaterThanOrEqualToZero();
         }
 
+        if ((float) $normalizedValue > 100) {
+            throw InvalidArticleIvaException::becauseMustBeLessThanOrEqualToOneHundred();
+        }
+
         $this->value = (float) $normalizedValue;
     }
 
