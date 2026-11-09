@@ -11,4 +11,9 @@ class InvalidArticleIvaException extends InvalidArgumentException
     {
         return new self('The article IVA must be greater than or equal to zero.');
     }
+
+    public static function becauseMustBeLessThanOrEqualToOneHundred()
+    {
+        return new self('The article IVA must be less than or equal to one hundred.');
+    }
 }
