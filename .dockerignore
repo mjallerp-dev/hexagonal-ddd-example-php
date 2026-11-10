@@ -1,0 +1,16 @@
+.git
+.gitignore
+.idea
+*.iml
+.claude
+.env
+.env.*
+docs
+database
+postman
+vendor
+composer.lock
+*.log
+Dockerfile
+docker-compose.yml
+.dockerignore
