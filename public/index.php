@@ -205,7 +205,7 @@ try {
 
         case 'articles.store':
             $form = getArticleFormData();
-            $errors = validateArticleForm($form);
+            $errors = ArticleRequestValidator::validate($form);
 
             if (!empty($errors)) {
                 Flash::setOld($form);
@@ -243,7 +243,7 @@ try {
 
         case 'articles.update':
             $form = getArticleFormData();
-            $errors = validateArticleForm($form);
+            $errors = ArticleRequestValidator::validate($form);
 
             if (!empty($errors)) {
                 Flash::setOld($form);
@@ -579,59 +579,6 @@ function getArticleFormData(): array
 
     return $form;
 }
-
-/**
- * Los limites coinciden con database/articles.sql.
- *
- * @param array<string, string> $form
- * @return array<string, string>
- */
-function validateArticleForm(array $form): array
-{
-    $errors = array();
-
-    $textFields = array(
-        'description' => array('descripción', 255),
-        'provider' => array('proveedor', 100),
-        'brand' => array('marca', 100),
-        'model' => array('modelo', 100),
-        'store' => array('tienda', 100),
-    );
-
-    foreach ($textFields as $field => [$label, $maxLength]) {
-        if ($form[$field] === '') {
-            $errors[$field] = 'El campo ' . $label . ' es obligatorio.';
-        } elseif (mb_strlen($form[$field]) > $maxLength) {
-            $errors[$field] = 'El campo ' . $label . ' no puede superar ' . $maxLength . ' caracteres.';
-        }
-    }
-
-    if (!ArticleCategoryEnum::isValid($form['category'])) {
-        $errors['category'] = 'Selecciona una categoría válida.';
-    }
-
-    if (!preg_match('/^\d{1,10}$/D', $form['quantity']) || (int) $form['quantity'] > 2147483647) {
-        $errors['quantity'] = 'La cantidad debe ser un número entero entre 0 y 2147483647.';
-    }
-
-    $priceFields = array(
-        'purchase_price' => 'El precio de compra',
-        'sale_price' => 'El precio de venta',
-    );
-
-    foreach ($priceFields as $field => $label) {
-        if (!preg_match('/^\d{1,10}(\.\d{1,2})?$/D', $form[$field]) || (float) $form[$field] <= 0) {
-            $errors[$field] = $label . ' debe ser mayor que 0, con punto decimal y máximo 2 decimales.';
-        }
-    }
-
-    if (!preg_match('/^\d{1,3}(\.\d{1,2})?$/D', $form['iva']) || (float) $form['iva'] > 100) {
-        $errors['iva'] = 'El IVA debe estar entre 0 y 100, con punto decimal y máximo 2 decimales.';
-    }
-
-    return $errors;
-}
-
 
 function generateUuid4(): string
 {
