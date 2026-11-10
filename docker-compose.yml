@@ -1,0 +1,8 @@
+services:
+  app:
+    build: .
+    image: crud-hexagonal-ddd-php
+    ports:
+      - "8080:80"
+    env_file:
+      - .env
