@@ -173,6 +173,13 @@ final class DependencyInjection
         );
     }
 
+    public static function getApiExceptionHandler(): ApiExceptionHandler
+    {
+        ClassLoader::loadClass('ApiExceptionHandler');
+
+        return new ApiExceptionHandler();
+    }
+
     public static function getArticleWebMapper(): ArticleWebMapper
     {
         ClassLoader::loadClass('ArticleWebMapper');

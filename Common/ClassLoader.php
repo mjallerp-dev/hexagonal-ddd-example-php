@@ -141,6 +141,10 @@ final class ClassLoader
         'ArticleWebMapper' => 'Infrastructure/Entrypoints/Web/Controllers/Mapper/ArticleWebMapper.php',
         'ArticleController' => 'Infrastructure/Entrypoints/Web/Controllers/ArticleController.php',
 
+        'ArticleRequestValidator' => 'Infrastructure/Entrypoints/Web/Controllers/Validator/ArticleRequestValidator.php',
+        'ApiExceptionHandler' => 'Infrastructure/Entrypoints/Web/Controllers/Handler/ApiExceptionHandler.php',
+        'JsonView' => 'Infrastructure/Entrypoints/Web/Presentation/JsonView.php',
+
         'DependencyInjection' => 'Common/DependencyInjection.php',
     );
 
