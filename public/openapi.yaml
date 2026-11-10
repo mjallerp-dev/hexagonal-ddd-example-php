@@ -1,0 +1,285 @@
+openapi: 3.0.3
+info:
+  title: API de artículos
+  version: 1.0.0
+  description: |
+    API REST del CRUDL de artículos del proyecto hexagonal-ddd-example-php.
+    Reutiliza los mismos casos de uso que la aplicación web.
+
+    Todas las rutas exigen la cabecera `X-API-Key` con el valor de la variable de entorno `API_KEY`.
+    Usa el botón **Authorize** para enviarla en las pruebas.
+servers:
+  - url: ../api
+    description: Apache o Docker (con .htaccess)
+  - url: api.php
+    description: Servidor integrado de PHP (php -S)
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: Artículos
+paths:
+  /articles:
+    get:
+      tags: [Artículos]
+      summary: Listar artículos
+      operationId: listArticles
+      responses:
+        '200':
+          description: Lista de artículos, ordenada por descripción.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Article'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags: [Artículos]
+      summary: Crear un artículo
+      description: El servidor genera el `id`.
+      operationId: createArticle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleInput'
+      responses:
+        '201':
+          description: Artículo creado.
+          headers:
+            Location:
+              description: URL del artículo creado.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /articles/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: UUID del artículo.
+        schema:
+          type: string
+          example: 0fb6204d-4f40-4018-b334-e8a13f9abbfc
+    get:
+      tags: [Artículos]
+      summary: Ver un artículo
+      operationId: getArticle
+      responses:
+        '200':
+          description: El artículo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags: [Artículos]
+      summary: Actualizar un artículo
+      description: Reemplaza todos los campos del artículo.
+      operationId: updateArticle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleInput'
+      responses:
+        '200':
+          description: Artículo actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: [Artículos]
+      summary: Eliminar un artículo
+      operationId: deleteArticle
+      responses:
+        '204':
+          description: Artículo eliminado, sin contenido.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    ArticleInput:
+      type: object
+      required: [description, provider, brand, model, category, store, quantity, purchase_price, sale_price, iva]
+      properties:
+        description:
+          type: string
+          minLength: 3
+          maxLength: 255
+          example: Portátil 14 pulgadas
+        provider:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: Proveedor Demo
+        brand:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: Lenovo
+        model:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: ThinkPad E14
+        category:
+          type: string
+          enum: [electronica, ropa, calzado, alimentos, bebidas, hogar, belleza, deportes, papeleria, ferreteria, otros]
+          example: electronica
+        store:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: Tienda Centro
+        quantity:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+          example: 5
+        purchase_price:
+          type: number
+          description: Mayor que 0, máximo 2 decimales.
+          exclusiveMinimum: true
+          minimum: 0
+          example: 2500000.5
+        sale_price:
+          type: number
+          description: Mayor que 0, máximo 2 decimales.
+          exclusiveMinimum: true
+          minimum: 0
+          example: 3200000
+        iva:
+          type: number
+          description: Porcentaje entre 0 y 100, máximo 2 decimales.
+          minimum: 0
+          maximum: 100
+          example: 19
+    Article:
+      allOf:
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+              example: 0fb6204d-4f40-4018-b334-e8a13f9abbfc
+        - $ref: '#/components/schemas/ArticleInput'
+    ArticleEnvelope:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Article'
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [status, message]
+          properties:
+            status:
+              type: integer
+            message:
+              type: string
+            details:
+              type: object
+              description: Errores por campo (solo en 422).
+              additionalProperties:
+                type: string
+  responses:
+    BadRequest:
+      description: El cuerpo no es un objeto JSON válido.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: { status: 400, message: El cuerpo de la petición debe ser un JSON válido. }
+    Unauthorized:
+      description: Falta la cabecera X-API-Key o es incorrecta.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: { status: 401, message: API key inválida o ausente. Envíala en la cabecera X-API-Key. }
+    NotFound:
+      description: El artículo no existe.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: { status: 404, message: The article with id 123 was not found. }
+    Conflict:
+      description: Ya existe un artículo con ese id.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Datos inválidos según la validación de entrada o las reglas del dominio.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              status: 422
+              message: Los datos del artículo no son válidos.
+              details:
+                iva: El IVA debe estar entre 0 y 100, con punto decimal y máximo 2 decimales.
+    ServerError:
+      description: Error inesperado; el detalle queda en el log del servidor.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: { status: 500, message: Error interno del servidor. }
