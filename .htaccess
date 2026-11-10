@@ -13,6 +13,10 @@ RewriteEngine On
 #    (los recursos estáticos y el index.php están ahí)
 RewriteRule ^public/ - [L]
 
+# 3b. La API REST: /api/... se reescribe internamente hacia public/api.php.
+#     api.php lee la ruta original desde REQUEST_URI.
+RewriteRule ^api(/.*)?$ public/api.php [L,QSA]
+
 # 4. Permitir archivos estáticos (CSS, JS, imágenes, fuentes…)
 #    aunque estén fuera de public/, el navegador los necesita.
 RewriteRule \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|mp4|pdf|map)$ - [L,NC]
