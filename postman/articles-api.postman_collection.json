@@ -1,0 +1,335 @@
+{
+  "info": {
+    "name": "API de artículos",
+    "description": "Pruebas de la API REST de artículos (public/api.php).\n\nAntes de ejecutar, selecciona un entorno (local o Render) y completa la variable apiKey con el valor de API_KEY.\n\nLa carpeta \"Flujo CRUD\" debe ejecutarse en orden: Crear guarda el id en articleId y las demás peticiones lo usan.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "X-API-Key", "type": "string" },
+      { "key": "value", "value": "{{apiKey}}", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "articleId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Flujo CRUD",
+      "item": [
+        {
+          "name": "Crear artículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('Devuelve el artículo con id', () => pm.expect(body.data.id).to.be.a('string').and.not.empty);",
+                  "pm.test('Incluye la cabecera Location', () => pm.expect(pm.response.headers.get('Location')).to.include(body.data.id));",
+                  "pm.collectionVariables.set('articleId', body.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Portátil de prueba Postman\",\n  \"provider\": \"Proveedor Demo\",\n  \"brand\": \"Lenovo\",\n  \"model\": \"ThinkPad E14\",\n  \"category\": \"electronica\",\n  \"store\": \"Tienda Centro\",\n  \"quantity\": 5,\n  \"purchase_price\": 2500000.5,\n  \"sale_price\": 3200000,\n  \"iva\": 19\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/articles"
+          }
+        },
+        {
+          "name": "Listar artículos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Devuelve una lista', () => pm.expect(body.data).to.be.an('array'));",
+                  "pm.test('Incluye el artículo creado', () => {",
+                  "    const id = pm.collectionVariables.get('articleId');",
+                  "    pm.expect(body.data.map(a => a.id)).to.include(id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/articles"
+          }
+        },
+        {
+          "name": "Ver artículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Es el artículo creado', () => pm.expect(body.data.id).to.eql(pm.collectionVariables.get('articleId')));",
+                  "pm.test('Conserva los decimales del precio', () => pm.expect(body.data.purchase_price).to.eql(2500000.5));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/articles/{{articleId}}"
+          }
+        },
+        {
+          "name": "Actualizar artículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Aplica los cambios', () => {",
+                  "    pm.expect(body.data.quantity).to.eql(8);",
+                  "    pm.expect(body.data.iva).to.eql(5);",
+                  "    pm.expect(body.data.category).to.eql('hogar');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Portátil de prueba Postman editado\",\n  \"provider\": \"Proveedor Demo\",\n  \"brand\": \"Lenovo\",\n  \"model\": \"ThinkPad E14\",\n  \"category\": \"hogar\",\n  \"store\": \"Tienda Centro\",\n  \"quantity\": 8,\n  \"purchase_price\": 2500000.5,\n  \"sale_price\": 3200000,\n  \"iva\": 5\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/articles/{{articleId}}"
+          }
+        },
+        {
+          "name": "Eliminar artículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 204 sin contenido', () => {",
+                  "    pm.response.to.have.status(204);",
+                  "    pm.expect(pm.response.text()).to.eql('');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/articles/{{articleId}}"
+          }
+        },
+        {
+          "name": "Ver artículo eliminado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Usa el formato de error', () => pm.expect(pm.response.json().error.status).to.eql(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/articles/{{articleId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Errores",
+      "item": [
+        {
+          "name": "Sin API key (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Usa el formato de error', () => pm.expect(pm.response.json().error.status).to.eql(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/articles"
+          }
+        },
+        {
+          "name": "JSON mal formado (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"description\": ",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/articles"
+          }
+        },
+        {
+          "name": "Datos inválidos (422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 422', () => pm.response.to.have.status(422));",
+                  "const details = pm.response.json().error.details;",
+                  "pm.test('Indica los campos con error', () => {",
+                  "    pm.expect(details).to.have.property('description');",
+                  "    pm.expect(details).to.have.property('quantity');",
+                  "    pm.expect(details).to.have.property('iva');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"\",\n  \"provider\": \"Proveedor Demo\",\n  \"brand\": \"Lenovo\",\n  \"model\": \"ThinkPad E14\",\n  \"category\": \"electronica\",\n  \"store\": \"Tienda Centro\",\n  \"quantity\": 2.5,\n  \"purchase_price\": 10,\n  \"sale_price\": 12,\n  \"iva\": 101\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/articles"
+          }
+        },
+        {
+          "name": "Regla del dominio (422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Devuelve el mensaje del dominio', () => pm.expect(pm.response.json().error.message).to.include('at least 3 characters'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Pc\",\n  \"provider\": \"Proveedor Demo\",\n  \"brand\": \"Lenovo\",\n  \"model\": \"ThinkPad E14\",\n  \"category\": \"electronica\",\n  \"store\": \"Tienda Centro\",\n  \"quantity\": 1,\n  \"purchase_price\": 10,\n  \"sale_price\": 12,\n  \"iva\": 19\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/articles"
+          }
+        },
+        {
+          "name": "Artículo inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/articles/00000000-0000-4000-8000-000000000000"
+          }
+        },
+        {
+          "name": "Ruta inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/productos"
+          }
+        },
+        {
+          "name": "Método no permitido (405)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 405', () => pm.response.to.have.status(405));",
+                  "pm.test('Indica los métodos permitidos', () => pm.expect(pm.response.headers.get('Allow')).to.eql('GET, POST'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/articles"
+          }
+        }
+      ]
+    }
+  ]
+}
