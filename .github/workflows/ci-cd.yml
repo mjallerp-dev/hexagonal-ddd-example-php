@@ -1,0 +1,114 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/mjallerp-dev/hexagonal-ddd-example-php
+  AZURE_WEBAPP_NAME: app-hexagonal-ddd-php
+  AZURE_WEBAPP_URL: https://app-hexagonal-ddd-php-h8haawccb3dfd2bc.westus3-01.azurewebsites.net
+
+jobs:
+  build:
+    name: Construir, probar y publicar
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Construir la imagen
+        run: docker build -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:latest" .
+
+      - name: Validar la sintaxis PHP dentro de la imagen
+        run: |
+          docker run --rm --entrypoint sh "$IMAGE:${{ github.sha }}" -c \
+            'find /var/www/html -name "*.php" -not -path "*/PHPMailer/*" -print0 | xargs -0 -n1 php -l > /dev/null'
+
+      - name: Prueba rápida del contenedor
+        run: |
+          docker run -d --name app -p 8080:80 -e API_KEY=ci-smoke-key "$IMAGE:${{ github.sha }}"
+
+          for _ in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8080/public/index.php?route=auth.login" || true)
+            [ "$code" = "200" ] && break
+            sleep 1
+          done
+
+          expect() {
+            local expected="$1" url="$2"
+            shift 2
+            local actual
+            actual=$(curl -s -o /dev/null -w '%{http_code}' "$@" "$url")
+            echo "esperado $expected, recibido $actual: $url"
+            [ "$actual" = "$expected" ]
+          }
+
+          expect 200 "http://localhost:8080/public/index.php?route=auth.login"
+          expect 302 "http://localhost:8080/"
+          expect 403 "http://localhost:8080/.htaccess"
+          expect 200 "http://localhost:8080/public/swagger.html"
+          expect 401 "http://localhost:8080/api/articles"
+          expect 404 "http://localhost:8080/api/productos"
+          expect 405 "http://localhost:8080/api/articles" -X PATCH
+
+      - name: Mostrar el log del contenedor si algo falló
+        if: failure()
+        run: docker logs app || true
+
+      - name: Iniciar sesión en GitHub Container Registry
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publicar la imagen
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
+  deploy:
+    name: Desplegar en Azure App Service
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://app-hexagonal-ddd-php-h8haawccb3dfd2bc.westus3-01.azurewebsites.net
+    steps:
+      - name: Desplegar la imagen
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          images: ${{ env.IMAGE }}:${{ github.sha }}
+
+      - name: Verificar que la aplicación responde
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$AZURE_WEBAPP_URL/public/index.php?route=auth.login" || true)
+            if [ "$code" = "200" ]; then
+              echo "La aplicación responde 200"
+              exit 0
+            fi
+            echo "Intento $i: $code"
+            sleep 10
+          done
+          echo "La aplicación no respondió 200 después del despliegue"
+          exit 1
