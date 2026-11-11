@@ -20,7 +20,7 @@ final class DependencyInjection
         return new Connection(
             host: EnvLoader::get('DB_HOST', '127.0.0.1'),
             port: EnvLoader::getInt('DB_PORT', 5432),
-            database: EnvLoader::get('DB_DATABASE', 'crud_usuarios'),
+            database: EnvLoader::get('DB_DATABASE', 'pgarticlesdb'),
             username: EnvLoader::get('DB_USERNAME', ''),
             password: EnvLoader::get('DB_PASSWORD', '')
         );
